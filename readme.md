@@ -54,6 +54,10 @@ This script backs up a workspace to a set of json files. Hoping to use
 this to do regular backups to my git server. Since I am experimenting with 
 batch methods, backups are necessary.
 
+This is derived from the ClubHouse "exporter.sh" script. However, exporter.sh
+doesn't back up entity-templates, story-comments, or story tasks. I needed 
+these.
+
 I haven't written the restore for this yet (will probably do it when I screw 
 something up :-). Currently, the output is _pretty_ so I can easily grep it. 
 Might switch to the condensed form since _pretty_ is rather wasteful.
@@ -111,3 +115,7 @@ wmonline (Willow). Thank You!
 
 Also want to thank David Ripplinger for this wonderful example!
 https://github.com/dcripplinger/pivotaltracker-clubhouse
+
+Also, thanks to the folks who wrote the exporter.sh script that I used as a
+basis for club_back.py.
+https://github.com/clubhouse/exporter

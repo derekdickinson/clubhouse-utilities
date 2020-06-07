@@ -4,6 +4,8 @@
 Copyright Derek Dickinson 2020 Open Source MIT/Expat license 
 For specific text see: https://github.com/derekdickinson/utilities_clubhouse/blob/master/LICENSE.txt
 
+This is derived from the ClubHouse "exporter.sh" script.
+
 Variable Naming Convention: 
 
 Names are of the form: S_varname_T

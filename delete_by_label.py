@@ -52,10 +52,9 @@ This script requires that the environment variable "CLUBHOUSE_API_TOKEN" is
 set to a valid Clubhouse token.
 '''
 
-g_clubhouse_api_token_s = '?token='
-
-# API URL
-g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
+g_url_root_s = 'https://api.clubhouse.io'
+g_api_s      = '/api/v3/'
+g_token_s    = 'token='
 
 # Python variant of this example
 #
@@ -66,7 +65,7 @@ g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
 # Get the list of labels
 def get_labels_l():
   try:
-    l_url_s = g_api_url_base_s + 'labels' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'labels' + '?' + g_token_s
     r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -81,7 +80,7 @@ def get_labels_l():
 # Get the list of stories associated with the labels
 def get_story_l(p_label_id_n):
   try:
-    l_url_s = g_api_url_base_s + 'labels/'+ str(p_label_id_n) +'/stories' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'labels/'+ str(p_label_id_n) +'/stories' + '?' + g_token_s
     r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -97,7 +96,7 @@ def get_story_l(p_label_id_n):
 # Archive the stories
 def archive_stories(p_story_l):
   try:
-    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'stories/bulk' + '?' + g_token_s
     r_response_d = requests.put(l_url_s, json={ "archived": 'true', 'story_ids': p_story_l } )
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -113,7 +112,7 @@ def archive_stories(p_story_l):
 # Delete the stories
 def delete_stories(p_story_l):
   try:
-    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'stories/bulk' + '?' + g_token_s
     r_response_d = requests.delete(l_url_s, json={ 'story_ids': p_story_l } )
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -132,8 +131,8 @@ def main():
     print(g_env_usage_message_s)
     sys.exit(1)
 
-  global g_clubhouse_api_token_s
-  g_clubhouse_api_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
+  global g_token_s
+  g_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
 
   l_arg_labels_l = []
   for l_cur_arg_s in sys.argv[1:]:

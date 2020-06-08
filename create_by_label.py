@@ -54,10 +54,9 @@ This script requires that the environment variable "CLUBHOUSE_API_TOKEN" is
 set to a valid Clubhouse token.
 '''
 
-g_clubhouse_api_token_s = '?token='
-
-# API URL
-g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
+g_url_root_s = 'https://api.clubhouse.io'
+g_api_s      = '/api/v3/'
+g_token_s    = 'token='
 
 # Example for API document
 # curl -X GET \
@@ -67,11 +66,11 @@ g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
 # Get the list of templates from clubhouse.io
 def get_template_l():
   try:
-    l_url_s = g_api_url_base_s + 'entity-templates' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'entity-templates' + '?' + g_token_s
     r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as l_s:
-    print(l_s)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -122,11 +121,11 @@ def story_data_from_template(p_template_d):
 # Create a bunch of new stories
 def create_stories(p_story_l):
   try:
-    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'stories/bulk' + '?' + g_token_s
     r_response_d = requests.post(l_url_s, json={ 'stories': p_story_l } )
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as l_s:
-    print(l_s)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -141,8 +140,8 @@ def main():
     print(g_env_usage_message_s)
     sys.exit(1)
 
-  global g_clubhouse_api_token_s
-  g_clubhouse_api_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
+  global g_token_s
+  g_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
 
   l_arg_labels_l = []
   for l_cur_arg_s in sys.argv[1:]:

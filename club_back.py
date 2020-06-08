@@ -52,15 +52,16 @@ This script requires that the environment variable "CLUBHOUSE_API_TOKEN" is
 set to a valid Clubhouse token.
 '''
 
-g_clubhouse_api_token_s = 'token='
+g_url_root_s = 'https://api.clubhouse.io'
+g_api_s      = '/api/v3/'
+g_token_s    = 'token='
 
 g_dirpath_s = "back"
 
-# Get the list of templates from clubhouse.io
 def get_clubhouse_l(p_source_s):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io/api/v3/' + p_source_s + '?' + g_clubhouse_api_token_s
+      l_url_s = g_url_root_s + g_api_s + p_source_s + '?' + g_token_s
       r_response_d = requests.get(l_url_s)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
@@ -75,7 +76,7 @@ def get_clubhouse_l(p_source_s):
 def post_clubhouse_l(p_source_s, p_json_s):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io/api/v3/' + p_source_s + '?' + g_clubhouse_api_token_s
+      l_url_s = g_url_root_s + g_api_s + p_source_s + '?' + g_token_s
       r_response_d = requests.post(l_url_s, json=p_json_s)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
@@ -90,7 +91,7 @@ def post_clubhouse_l(p_source_s, p_json_s):
 def next_query_d(p_next_s):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io' + p_next_s + '&' + g_clubhouse_api_token_s
+      l_url_s = g_url_root_s + p_next_s + '&' + g_token_s
       r_response_d = requests.get(l_url_s)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
@@ -105,7 +106,7 @@ def next_query_d(p_next_s):
 def first_query_d(p_type_s, p_query_d):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io/api/v3/search/' + p_type_s + '?' + g_clubhouse_api_token_s
+      l_url_s = g_url_root_s + g_api_s + 'search/' + p_type_s + '?' + g_token_s
       r_response_d = requests.get(l_url_s, params=p_query_d)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
@@ -145,10 +146,10 @@ def save_clubhouse_get(p_source_s):
 def get_epics_l():
   r_epic_l = []
 
-  l_query_d = {'query': '!is:done', 'page_size': 25}
+  l_query_d = {'query': '!is:archived', 'page_size': 25}
   r_epic_l = query_clubhouse_l('epics', l_query_d)
 
-  l_query_d = {'query': 'is:done', 'page_size': 25}
+  l_query_d = {'query': 'is:archived', 'page_size': 25}
   r_epic_l += query_clubhouse_l('epics', l_query_d)
 
   return r_epic_l
@@ -156,10 +157,10 @@ def get_epics_l():
 def get_stories_l():
   r_story_l = []
 
-  l_query_d = {'query': '!is:done', 'page_size': 25}
+  l_query_d = {'query': '!is:archived', 'page_size': 25}
   r_story_l = query_clubhouse_l('stories', l_query_d)
 
-  l_query_d = {'query': 'is:done', 'page_size': 25}
+  l_query_d = {'query': 'is:archived', 'page_size': 25}
   r_story_l += query_clubhouse_l('stories', l_query_d)
 
   return r_story_l
@@ -184,10 +185,10 @@ def main():
     print(g_env_usage_message_s)
     sys.exit(1)
 
-  global g_clubhouse_api_token_s
-  g_clubhouse_api_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
+  global g_token_s
+  g_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
 
-  # Defaults to 'data'. Make sure it exists.
+  # Defaults to 'back'. Make sure it exists.
   pathlib.Path(g_dirpath_s).mkdir(parents=True, exist_ok=True)
 
   # Gets
@@ -198,7 +199,6 @@ def main():
   # "https://api.clubhouse.io/api/v3/entity-templates?token=$CLUBHOUSE_API_TOKEN"
   save_clubhouse_get('entity-templates')
 
-  # Redundant with anything?
   # "https://api.clubhouse.io/api/v3/epic-workflow?token=$CLUBHOUSE_API_TOKEN"
   save_clubhouse_get('epic-workflow')
 

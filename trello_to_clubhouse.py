@@ -78,17 +78,16 @@ g_project_d             = None
 g_project_follower_id_s = None
 g_translation_label_s   = None
 
-g_clubhouse_api_token_s = '?token='
-
-# API URL
-g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
+g_url_root_s = 'https://api.clubhouse.io'
+g_api_s      = '/api/v3/'
+g_token_s    = 'token='
 
 # Get the list of projects from clubhouse.io
 def get_project_l():
   # Add page loop logic here?
   # Add timeour retry logic here?
   try:
-    l_url_s = g_api_url_base_s + 'projects' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'projects' + '?' + g_token_s
     r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -101,7 +100,7 @@ def create_stories(p_story_l):
   # Add page loop logic here?
   # Add timeour retry logic here?
   try:
-    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    l_url_s = g_url_root_s + g_api_s + 'stories/bulk' + '?' + g_token_s
     r_response_d = requests.post(l_url_s, json={ 'stories': p_story_l } )
     r_response_d.raise_for_status()
   except requests.exceptions.RequestException as l_e_c:
@@ -179,8 +178,8 @@ def main():
     print(g_env_usage_message_s)
     sys.exit(1)
 
-  global g_clubhouse_api_token_s
-  g_clubhouse_api_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
+  global g_token_s
+  g_token_s += os.getenv('CLUBHOUSE_API_TOKEN')
 
   # Load the trello export file
   try:

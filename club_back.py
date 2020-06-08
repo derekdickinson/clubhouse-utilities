@@ -151,8 +151,8 @@ def get_epics_l():
   r_epic_l = query_clubhouse_d('epics', l_query_d)
 
   # Archived stories
-  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
-  r_epic_l += query_clubhouse_d('epics', l_query_d)
+  # l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
+  # r_epic_l += query_clubhouse_d('epics', l_query_d)
 
   return r_epic_l
 
@@ -165,8 +165,8 @@ def get_stories_l():
   r_story_l = query_clubhouse_d('stories', l_query_d)
 
   # Archived stories - Getting the unarchived ones here too?
-  # l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
-  # r_story_l += query_clubhouse_d('stories', l_query_d)
+  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
+  r_story_l += query_clubhouse_d('stories', l_query_d)
 
   return r_story_l
 

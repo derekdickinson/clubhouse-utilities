@@ -117,17 +117,17 @@ def first_query_d(p_type_s, p_query_d):
       sys.exit(1)
     return r_response_d.json()
 
-def query_clubhouse_d(p_type_s, p_query_d):
-  r_story_l = []
+def query_clubhouse_l(p_type_s, p_query_d):
+  r_l = []
 
-  l_results_d = first_query_d(p_type_s, p_query_d)
-  while l_results_d['next'] is not None:
-    r_story_l += l_results_d['data']
-    l_results_d = next_query_d(l_results_d['next'])
+  l_d = first_query_d(p_type_s, p_query_d)
+  while l_d['next'] is not None:
+    r_l += l_d['data']
+    l_d = next_query_d(l_d['next'])
   else:
-    r_story_l += l_results_d['data']
+    r_l += l_d['data']
 
-  return r_story_l
+  return r_l
 
 def save_json_list(p_name_s, p_l):
   if not p_l: # ignore cases where none exist
@@ -146,7 +146,10 @@ def get_epics_l():
   r_epic_l = []
 
   l_query_d = {'query': '!is:done', 'page_size': 25}
-  r_epic_l = query_clubhouse_d('epics', l_query_d)
+  r_epic_l = query_clubhouse_l('epics', l_query_d)
+
+  l_query_d = {'query': 'is:done', 'page_size': 25}
+  r_epic_l += query_clubhouse_l('epics', l_query_d)
 
   return r_epic_l
 
@@ -154,7 +157,10 @@ def get_stories_l():
   r_story_l = []
 
   l_query_d = {'query': '!is:done', 'page_size': 25}
-  r_story_l = query_clubhouse_d('stories', l_query_d)
+  r_story_l = query_clubhouse_l('stories', l_query_d)
+
+  l_query_d = {'query': 'is:done', 'page_size': 25}
+  r_story_l += query_clubhouse_l('stories', l_query_d)
 
   return r_story_l
 

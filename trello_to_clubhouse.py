@@ -15,9 +15,10 @@ p - Parameters "p_"
 r - Return values "r_"
 
 T indicates Type:
-l - List (i.e. indexed like an array)
+c - Class
+d - Dictionary
+l - List
 n - Number
-d - Dictionary (i.e. like an object/structure)
 s - String
 
 '''
@@ -87,11 +88,11 @@ def get_project_l():
   # Add page loop logic here?
   # Add timeour retry logic here?
   try:
-    url_s = g_api_url_base_s + 'projects' + g_clubhouse_api_token_s
-    r_response_d = requests.get(url_s)
+    l_url_s = g_api_url_base_s + 'projects' + g_clubhouse_api_token_s
+    r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -100,11 +101,11 @@ def create_stories(p_story_l):
   # Add page loop logic here?
   # Add timeour retry logic here?
   try:
-    url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
-    r_response_d = requests.post(url_s, json={ 'stories': p_story_l } )
+    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    r_response_d = requests.post(l_url_s, json={ 'stories': p_story_l } )
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -186,9 +187,9 @@ def main():
     with open(l_trello_db_filename_s, 'r') as json_file:
       global g_trello_db_d
       g_trello_db_d = json.load(json_file)
-  except Exception as e: 
+  except Exception as l_e_c: 
     print('Failure processing file named:', l_trello_db_filename_s)
-    print(e)
+    print(l_e_c)
     sys.exit(1)
 
   # The full project list

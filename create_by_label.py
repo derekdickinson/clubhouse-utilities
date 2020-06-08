@@ -15,9 +15,10 @@ p - Parameters "p_"
 r - Return values "r_"
 
 T indicates Type:
-l - List (i.e. indexed like an array)
+c - Class
+d - Dictionary
+l - List
 n - Number
-d - Dictionary (i.e. like an object/structure)
 s - String
 
 '''
@@ -66,11 +67,11 @@ g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
 # Get the list of templates from clubhouse.io
 def get_template_l():
   try:
-    url_s = g_api_url_base_s + 'entity-templates' + g_clubhouse_api_token_s
-    r_response_d = requests.get(url_s)
+    l_url_s = g_api_url_base_s + 'entity-templates' + g_clubhouse_api_token_s
+    r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_s:
+    print(l_s)
     sys.exit(1)
   return r_response_d.json()
 
@@ -121,11 +122,11 @@ def story_data_from_template(p_template_d):
 # Create a bunch of new stories
 def create_stories(p_story_l):
   try:
-    url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
-    r_response_d = requests.post(url_s, json={ 'stories': p_story_l } )
+    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    r_response_d = requests.post(l_url_s, json={ 'stories': p_story_l } )
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_s:
+    print(l_s)
     sys.exit(1)
   return r_response_d.json()
 
@@ -163,7 +164,6 @@ def main():
             l_story_l.append(story_data_from_template(l_cur_template_d))
 
   if l_story_l:
-    # print(json.dumps(l_story_l, indent=2))
     create_stories(l_story_l)
   else:
     print("No label matches found.")

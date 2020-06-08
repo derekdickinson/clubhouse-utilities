@@ -17,9 +17,10 @@ p - Parameters "p_"
 r - Return values "r_"
 
 T indicates Type:
-l - List (i.e. indexed like an array)
+c - Class
+d - Dictionary
+l - List
 n - Number
-d - Dictionary (i.e. like an object/structure)
 s - String
 
 '''
@@ -51,23 +52,20 @@ This script requires that the environment variable "CLUBHOUSE_API_TOKEN" is
 set to a valid Clubhouse token.
 '''
 
-g_clubhouse_api_token_s = '?token='
+g_clubhouse_api_token_s = 'token='
 
 g_dirpath_s = "back"
-
-# API URL
-g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
 
 # Get the list of templates from clubhouse.io
 def get_clubhouse_l(p_source_s):
   while True:
     try:
-      url_s = g_api_url_base_s + p_source_s + g_clubhouse_api_token_s
-      r_response_d = requests.get(url_s)
+      l_url_s = 'https://api.clubhouse.io/api/v3/' + p_source_s + '?' + g_clubhouse_api_token_s
+      r_response_d = requests.get(l_url_s)
       r_response_d.raise_for_status()
-    except requests.exceptions.RequestException as e:
-      print(e)
-      if 429 == e.errno: 
+    except requests.exceptions.RequestException as l_e_c:
+      print(l_e_c)
+      if 429 == l_e_c.errno: 
         print( 'To Many Requests Error, waiting 10 seconds ...' )
         sleep(10)
         continue
@@ -77,12 +75,42 @@ def get_clubhouse_l(p_source_s):
 def post_clubhouse_l(p_source_s, p_json_s):
   while True:
     try:
-      url_s = g_api_url_base_s + p_source_s + g_clubhouse_api_token_s
-      r_response_d = requests.post(url_s, json=p_json_s)
+      l_url_s = 'https://api.clubhouse.io/api/v3/' + p_source_s + '?' + g_clubhouse_api_token_s
+      r_response_d = requests.post(l_url_s, json=p_json_s)
       r_response_d.raise_for_status()
-    except requests.exceptions.RequestException as e:
-      print(e)
-      if 429 == e.errno: 
+    except requests.exceptions.RequestException as l_e_c:
+      print(l_e_c)
+      if 429 == l_e_c.errno: 
+        print( 'To Many Requests Error, waiting 10 seconds ...' )
+        sleep(10)
+        continue
+      sys.exit(1)
+    return r_response_d.json()
+
+def next_stories_d(p_next_page_s):
+  while True:
+    try:
+      l_url_s = 'https://api.clubhouse.io' + p_next_page_s + '&' + g_clubhouse_api_token_s
+      r_response_d = requests.get(l_url_s)
+      r_response_d.raise_for_status()
+    except requests.exceptions.RequestException as l_e_c:
+      print(l_e_c)
+      if 429 == l_e_c.errno: 
+        print( 'To Many Requests Error, waiting 10 seconds ...' )
+        sleep(10)
+        continue
+      sys.exit(1)
+    return r_response_d.json()
+
+def first_stories_d(p_query_s):
+  while True:
+    try:
+      l_url_s = 'https://api.clubhouse.io/api/v3/search/stories' + '?' + g_clubhouse_api_token_s
+      r_response_d = requests.get(l_url_s, params=p_query_s)
+      r_response_d.raise_for_status()
+    except requests.exceptions.RequestException as l_e_c:
+      print(l_e_c)
+      if 429 == l_e_c.errno: 
         print( 'To Many Requests Error, waiting 10 seconds ...' )
         sleep(10)
         continue
@@ -94,7 +122,7 @@ def save_clubhouse_get(p_source_s):
   l_filename_s = g_dirpath_s + '/' + p_source_s + '.json'
   print( 'creating file: ' + l_filename_s)
   with open(l_filename_s, 'w') as json_file:
-    json.dump({ p_source_s : r_source_l }, json_file, indent=2)    
+    json.dump({ p_source_s : r_source_l }, json_file)    
   return r_source_l
 
 def save_json_list(p_name_s, p_l):
@@ -103,7 +131,31 @@ def save_json_list(p_name_s, p_l):
   l_filename_s = g_dirpath_s + '/' + p_name_s + '.json'
   print( 'creating file: ' + l_filename_s)
   with open(l_filename_s, 'w') as json_file:
-    json.dump({ p_name_s : p_l }, json_file, indent=2)    
+    json.dump({ p_name_s : p_l }, json_file)    
+
+def get_stories_l():
+  # A list to store each page of search results for processing.
+  r_story_l = []
+
+  # Unarchived stories
+  l_query_d = {'query': '!is:done archived:"false"', 'page_size': 25}
+  l_results_d = first_stories_d(l_query_d)
+  while l_results_d['next'] is not None:
+    r_story_l += l_results_d['data']
+    l_results_d = next_stories_d(l_results_d['next'])
+  else:
+    r_story_l += l_results_d['data']
+
+  # Archived stories
+  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
+  l_results_d = first_stories_d(l_query_d)
+  while l_results_d['next'] is not None:
+    r_story_l += l_results_d['data']
+    l_results_d = next_stories_d(l_results_d['next'])
+  else:
+    r_story_l += l_results_d['data']
+
+  return r_story_l
 
 def main():
 
@@ -134,8 +186,7 @@ def main():
   # Gets
 
   # "https://api.clubhouse.io/api/v3/categories?token=$CLUBHOUSE_API_TOKEN"
-  l_source_s = 'categories'
-  save_clubhouse_get(l_source_s)
+  save_clubhouse_get('categories')
 
   # "https://api.clubhouse.io/api/v3/entity-templates?token=$CLUBHOUSE_API_TOKEN"
   save_clubhouse_get('entity-templates')
@@ -189,56 +240,8 @@ def main():
   save_clubhouse_get('workflows')
 
   # Story Searches
-  l_story_l =  post_clubhouse_l('stories/search', json.loads('{ "archived": "false" }'))
-  l_story_l += post_clubhouse_l('stories/search', json.loads('{ "archived": "true"  }'))
-
+  l_story_l = get_stories_l()
   save_json_list('stories', l_story_l)
-
-  #   "comment_ids":            Yes - stories/{story-public-id}/comments/{comment-public-id}
-  #   "task_ids":               Yes - stories/{story-public-id}/tasks/{task-public-id}
-  l_comment_l = []
-  l_task_l = []
-  for l_story_d in l_story_l:
-    for l_comment_id_n in l_story_d['comment_ids']:
-      l_comment_l.append(get_clubhouse_l('stories/'+str(l_story_d['id'])+'/comments/'+str(l_comment_id_n)))
-    for l_task_id_n in l_story_d['task_ids']:
-      l_task_l.append(get_clubhouse_l('stories/'+str(l_story_d['id'])+'/tasks/'+str(l_task_id_n)))
-
-  save_json_list('story-comments', l_comment_l)
-  save_json_list('story-tasks', l_task_l)
-
-
-'''
-  # Hmmm, do the same comment and task ids showing up for different stories?
-  # Probably doesn't happen, but the code below would handle ids from 
-  # different stories having the same public ids. Will see.
-  l_comment_l = []
-  l_comment_id_l = []
-  l_task_l = []
-  l_task_id_l = []
-  for l_story_d in l_story_l:
-    for l_comment_id_n in l_story_d['comment_ids']:
-      if l_comment_id_n not in l_comment_id_l:
-        l_comment_id_l.append(l_comment_id_n)
-        l_comment_l.append(get_clubhouse_l('stories/'+str(l_story_d['id'])+'/comments/'+str(l_comment_id_n)))
-    for l_task_id_n in l_story_d['task_ids']:
-      if l_task_id_n not in l_task_id_l:
-        l_task_id_l.append(l_task_id_n)
-        l_task_l.append(get_clubhouse_l('stories/'+str(l_story_d['id'])+'/tasks/'+str(l_task_id_n)))
-    
-# Traverse these arrays from stories too?
-   "story_links": [],        ? - Probably not
-   "labels": [],             No - From global list labels
-   "external_tickets": [],   ? - Probably not
-   "mention_ids": [],        ? - Probably not
-   "member_mention_ids": [], ? - Probably not
-   "file_ids": [],           No - From global list files
-   "external_links": [],     ? - Probably not
-   "previous_iteration_ids": ? - Probably not
-   "group_mention_ids": [],  ? - Probably not
-   "support_tickets": [],    ? - Probably not
-   "linked_file_ids": [],    ? - Probably not
-'''        
 
 if __name__ == "__main__":
   main()

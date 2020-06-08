@@ -15,9 +15,10 @@ p - Parameters "p_"
 r - Return values "r_"
 
 T indicates Type:
-l - List (i.e. indexed like an array)
+c - Class
+d - Dictionary
+l - List
 n - Number
-d - Dictionary (i.e. like an object/structure)
 s - String
 
 '''
@@ -65,11 +66,11 @@ g_api_url_base_s = 'https://api.clubhouse.io/api/v3/'
 # Get the list of labels
 def get_labels_l():
   try:
-    url_s = g_api_url_base_s + 'labels' + g_clubhouse_api_token_s
-    r_response_d = requests.get(url_s)
+    l_url_s = g_api_url_base_s + 'labels' + g_clubhouse_api_token_s
+    r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -80,11 +81,11 @@ def get_labels_l():
 # Get the list of stories associated with the labels
 def get_story_l(p_label_id_n):
   try:
-    url_s = g_api_url_base_s + 'labels/'+ str(p_label_id_n) +'/stories' + g_clubhouse_api_token_s
-    r_response_d = requests.get(url_s)
+    l_url_s = g_api_url_base_s + 'labels/'+ str(p_label_id_n) +'/stories' + g_clubhouse_api_token_s
+    r_response_d = requests.get(l_url_s)
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return r_response_d.json()
 
@@ -96,11 +97,11 @@ def get_story_l(p_label_id_n):
 # Archive the stories
 def archive_stories(p_story_l):
   try:
-    url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
-    r_response_d = requests.put(url_s, json={ "archived": 'true', 'story_ids': p_story_l } )
+    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    r_response_d = requests.put(l_url_s, json={ "archived": 'true', 'story_ids': p_story_l } )
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return 0
 
@@ -112,11 +113,11 @@ def archive_stories(p_story_l):
 # Delete the stories
 def delete_stories(p_story_l):
   try:
-    url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
-    r_response_d = requests.delete(url_s, json={ 'story_ids': p_story_l } )
+    l_url_s = g_api_url_base_s + 'stories/bulk' + g_clubhouse_api_token_s
+    r_response_d = requests.delete(l_url_s, json={ 'story_ids': p_story_l } )
     r_response_d.raise_for_status()
-  except requests.exceptions.RequestException as e:
-    print(e)
+  except requests.exceptions.RequestException as l_e_c:
+    print(l_e_c)
     sys.exit(1)
   return 0
 

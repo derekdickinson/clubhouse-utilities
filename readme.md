@@ -2,10 +2,8 @@ New project, sort of tested ...
 ==================================
 The following programs are working with small data sets. I've only had a 
 Clubhouse.io account for a few days and haven't brought very much work over 
-yet. I presume that I will have to add some logic to handle larger 
-data. Fortunately there appear to be some good examples online (will look at 
-https://github.com/clubhouse/api-cookbook/blob/master/change-label/change_label.py
-thanks in advance to wmonline :-).
+yet. It's likely that there are some size limits that will need extra code
+when hit. Let me know if this happens on any of these scripts.
 
 **Note:** All the following scripts require that the environment variable 
 "CLUBHOUSE_API_TOKEN" is set to a valid Clubhouse token.
@@ -59,8 +57,7 @@ doesn't back up entity-templates, story-comments, or story tasks. I needed
 these.
 
 I haven't written the restore for this yet (will probably do it when I screw 
-something up :-). Currently, the output is _pretty_ so I can easily grep it. 
-Might switch to the condensed form since _pretty_ is rather wasteful.
+something up :-).
 
 **Usage:** `$ club_back.py [destination_subdirectory]`
 

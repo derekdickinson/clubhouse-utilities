@@ -87,10 +87,10 @@ def post_clubhouse_l(p_source_s, p_json_s):
       sys.exit(1)
     return r_response_d.json()
 
-def next_stories_d(p_next_page_s):
+def next_query_d(p_next_s):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io' + p_next_page_s + '&' + g_clubhouse_api_token_s
+      l_url_s = 'https://api.clubhouse.io' + p_next_s + '&' + g_clubhouse_api_token_s
       r_response_d = requests.get(l_url_s)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
@@ -102,11 +102,11 @@ def next_stories_d(p_next_page_s):
       sys.exit(1)
     return r_response_d.json()
 
-def first_stories_d(p_query_s):
+def first_query_d(p_type_s, p_query_d):
   while True:
     try:
-      l_url_s = 'https://api.clubhouse.io/api/v3/search/stories' + '?' + g_clubhouse_api_token_s
-      r_response_d = requests.get(l_url_s, params=p_query_s)
+      l_url_s = 'https://api.clubhouse.io/api/v3/search/' + p_type_s + '?' + g_clubhouse_api_token_s
+      r_response_d = requests.get(l_url_s, params=p_query_d)
       r_response_d.raise_for_status()
     except requests.exceptions.RequestException as l_e_c:
       print(l_e_c)
@@ -117,13 +117,17 @@ def first_stories_d(p_query_s):
       sys.exit(1)
     return r_response_d.json()
 
-def save_clubhouse_get(p_source_s):
-  r_source_l = get_clubhouse_l(p_source_s)
-  l_filename_s = g_dirpath_s + '/' + p_source_s + '.json'
-  print( 'creating file: ' + l_filename_s)
-  with open(l_filename_s, 'w') as json_file:
-    json.dump({ p_source_s : r_source_l }, json_file)    
-  return r_source_l
+def query_clubhouse_d(p_type_s, p_query_d):
+  r_story_l = []
+
+  l_results_d = first_query_d(p_type_s, p_query_d)
+  while l_results_d['next'] is not None:
+    r_story_l += l_results_d['data']
+    l_results_d = next_query_d(l_results_d['next'])
+  else:
+    r_story_l += l_results_d['data']
+
+  return r_story_l
 
 def save_json_list(p_name_s, p_l):
   if not p_l: # ignore cases where none exist
@@ -133,27 +137,36 @@ def save_json_list(p_name_s, p_l):
   with open(l_filename_s, 'w') as json_file:
     json.dump({ p_name_s : p_l }, json_file)    
 
+def save_clubhouse_get(p_source_s):
+  r_source_l = get_clubhouse_l(p_source_s)
+  save_json_list(p_source_s, r_source_l)
+  return r_source_l
+
+def get_epics_l():
+  # A list to store each page of search results for processing.
+  r_epic_l = []
+
+  # Unarchived stories
+  l_query_d = {'query': '!is:done archived:"false"', 'page_size': 25}
+  r_epic_l = query_clubhouse_d('epics', l_query_d)
+
+  # Archived stories
+  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
+  r_epic_l += query_clubhouse_d('epics', l_query_d)
+
+  return r_epic_l
+
 def get_stories_l():
   # A list to store each page of search results for processing.
   r_story_l = []
 
   # Unarchived stories
   l_query_d = {'query': '!is:done archived:"false"', 'page_size': 25}
-  l_results_d = first_stories_d(l_query_d)
-  while l_results_d['next'] is not None:
-    r_story_l += l_results_d['data']
-    l_results_d = next_stories_d(l_results_d['next'])
-  else:
-    r_story_l += l_results_d['data']
+  r_story_l = query_clubhouse_d('stories', l_query_d)
 
-  # Archived stories
-  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
-  l_results_d = first_stories_d(l_query_d)
-  while l_results_d['next'] is not None:
-    r_story_l += l_results_d['data']
-    l_results_d = next_stories_d(l_results_d['next'])
-  else:
-    r_story_l += l_results_d['data']
+  # Archived stories - Getting the unarchived ones here too?
+  # l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
+  # r_story_l += query_clubhouse_d('stories', l_query_d)
 
   return r_story_l
 
@@ -195,17 +208,9 @@ def main():
   # "https://api.clubhouse.io/api/v3/epic-workflow?token=$CLUBHOUSE_API_TOKEN"
   save_clubhouse_get('epic-workflow')
 
-  # "https://api.clubhouse.io/api/v3/epics?token=$CLUBHOUSE_API_TOKEN"
-  l_epic_l = save_clubhouse_get('epics')
-
-  # "https://api.clubhouse.io/api/v3/epics/{epic-public-id}/comments?token=$CLUBHOUSE_API_TOKEN"
-  l_comment_l = []
-  for l_epic_d in l_epic_l:
-    for l_comment_id_n in l_epic_d['comment_ids']:
-      l_comment_l.append(get_clubhouse_l('epics/'+str(l_epic_d['id'])+'/comments/'+str(l_comment_id_n)))
-
-  save_json_list('epic-comments', l_comment_l)
-
+  l_epic_l = get_epics_l()
+  save_json_list('epics', l_epic_l)
+  
   # "https://api.clubhouse.io/api/v3/files?token=$CLUBHOUSE_API_TOKEN"
   save_clubhouse_get('files')
 

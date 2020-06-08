@@ -143,30 +143,18 @@ def save_clubhouse_get(p_source_s):
   return r_source_l
 
 def get_epics_l():
-  # A list to store each page of search results for processing.
   r_epic_l = []
 
-  # Unarchived stories
-  l_query_d = {'query': '!is:done archived:"false"', 'page_size': 25}
+  l_query_d = {'query': '!is:done', 'page_size': 25}
   r_epic_l = query_clubhouse_d('epics', l_query_d)
-
-  # Archived stories
-  # l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
-  # r_epic_l += query_clubhouse_d('epics', l_query_d)
 
   return r_epic_l
 
 def get_stories_l():
-  # A list to store each page of search results for processing.
   r_story_l = []
 
-  # Unarchived stories
-  l_query_d = {'query': '!is:done archived:"false"', 'page_size': 25}
+  l_query_d = {'query': '!is:done', 'page_size': 25}
   r_story_l = query_clubhouse_d('stories', l_query_d)
-
-  # Archived stories - Getting the unarchived ones here too?
-  l_query_d = {'query': '!is:done archived:"true"', 'page_size': 25}
-  r_story_l += query_clubhouse_d('stories', l_query_d)
 
   return r_story_l
 
